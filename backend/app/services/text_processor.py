@@ -1,5 +1,5 @@
 """
-文本处理服务
+文本Handle服务
 """
 
 from typing import List, Optional
@@ -7,11 +7,11 @@ from ..utils.file_parser import FileParser, split_text_into_chunks
 
 
 class TextProcessor:
-    """文本处理器"""
+    """文本Handle器"""
     
     @staticmethod
     def extract_from_files(file_paths: List[str]) -> str:
-        """从多个文件提取文本"""
+        """从多items文件提取文本"""
         return FileParser.extract_from_multiple(file_paths)
     
     @staticmethod
@@ -36,7 +36,7 @@ class TextProcessor:
     @staticmethod
     def preprocess_text(text: str) -> str:
         """
-        预处理文本
+        预Handle文本
         - 移除多余空白
         - 标准化换行
         
@@ -44,14 +44,14 @@ class TextProcessor:
             text: 原始文本
             
         Returns:
-            处理后的文本
+            Handle后的文本
         """
         import re
         
         # 标准化换行
         text = text.replace('\r\n', '\n').replace('\r', '\n')
         
-        # 移除连续空行（保留最多两个换行）
+        # 移除连续空行（保留最多两items换行）
         text = re.sub(r'\n{3,}', '\n\n', text)
         
         # 移除行首行尾空白
@@ -62,7 +62,7 @@ class TextProcessor:
     
     @staticmethod
     def get_text_stats(text: str) -> dict:
-        """获取文本统计信息"""
+        """Get文本统计Info"""
         return {
             "total_chars": len(text),
             "total_lines": text.count('\n') + 1,

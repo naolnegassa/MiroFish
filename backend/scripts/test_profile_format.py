@@ -1,6 +1,6 @@
 """
 测试Profile格式生成是否符合OASIS要求
-验证：
+Verify：
 1. Twitter Profile生成CSV格式
 2. Reddit Profile生成JSON详细格式
 """
@@ -11,7 +11,7 @@ import json
 import csv
 import tempfile
 
-# 添加项目路径
+# 添加Project路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.services.oasis_profile_generator import OasisProfileGenerator, OasisAgentProfile
@@ -23,7 +23,7 @@ def test_profile_formats():
     print("OASIS Profile格式测试")
     print("=" * 60)
     
-    # 创建测试Profile数据
+    # Create测试Profile数据
     test_profiles = [
         OasisAgentProfile(
             user_id=0,
@@ -73,7 +73,7 @@ def test_profile_formats():
         print("-" * 40)
         generator._save_twitter_csv(test_profiles, twitter_path)
         
-        # 读取并验证CSV
+        # 读取andVerifyCSV
         with open(twitter_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
@@ -81,49 +81,49 @@ def test_profile_formats():
         print(f"   文件: {twitter_path}")
         print(f"   行数: {len(rows)}")
         print(f"   表头: {list(rows[0].keys())}")
-        print(f"\n   示例数据 (第1行):")
+        print(f"\n   Examples数据 (第1行):")
         for key, value in rows[0].items():
             print(f"     {key}: {value}")
         
-        # 验证必需字段
+        # Verify必需字段
         required_twitter_fields = ['user_id', 'user_name', 'name', 'bio', 
                                    'friend_count', 'follower_count', 'statuses_count', 'created_at']
         missing = set(required_twitter_fields) - set(rows[0].keys())
         if missing:
-            print(f"\n   [错误] 缺少字段: {missing}")
+            print(f"\n   [Error] 缺少字段: {missing}")
         else:
-            print(f"\n   [通过] 所有必需字段都存在")
+            print(f"\n   [Through] 所yes必需字段都存在")
         
         # 测试Reddit JSON格式
         print("\n2. 测试Reddit Profile (JSON详细格式)")
         print("-" * 40)
         generator._save_reddit_json(test_profiles, reddit_path)
         
-        # 读取并验证JSON
+        # 读取andVerifyJSON
         with open(reddit_path, 'r', encoding='utf-8') as f:
             reddit_data = json.load(f)
         
         print(f"   文件: {reddit_path}")
-        print(f"   条目数: {len(reddit_data)}")
+        print(f"   items目数: {len(reddit_data)}")
         print(f"   字段: {list(reddit_data[0].keys())}")
-        print(f"\n   示例数据 (第1条):")
+        print(f"\n   Examples数据 (第1items):")
         print(json.dumps(reddit_data[0], ensure_ascii=False, indent=4))
         
-        # 验证详细格式字段
+        # Verify详细格式字段
         required_reddit_fields = ['realname', 'username', 'bio', 'persona']
         optional_reddit_fields = ['age', 'gender', 'mbti', 'country', 'profession', 'interested_topics']
         
         missing = set(required_reddit_fields) - set(reddit_data[0].keys())
         if missing:
-            print(f"\n   [错误] 缺少必需字段: {missing}")
+            print(f"\n   [Error] 缺少必需字段: {missing}")
         else:
-            print(f"\n   [通过] 所有必需字段都存在")
+            print(f"\n   [Through] 所yes必需字段都存在")
         
         present_optional = set(optional_reddit_fields) & set(reddit_data[0].keys())
-        print(f"   [信息] 可选字段: {present_optional}")
+        print(f"   [Info] 可选字段: {present_optional}")
     
     print("\n" + "=" * 60)
-    print("测试完成!")
+    print("测试Complete!")
     print("=" * 60)
 
 

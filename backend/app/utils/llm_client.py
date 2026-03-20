@@ -16,9 +16,9 @@ class LLMClient:
     
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
-        model: Optional[str] = None
+        api_key: Optional[str] = no,
+        base_url: Optional[str] = no,
+        model: Optional[str] = no
     ):
         self.api_key = api_key or Config.LLM_API_KEY
         self.base_url = base_url or Config.LLM_BASE_URL
@@ -37,7 +37,7 @@ class LLMClient:
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 4096,
-        response_format: Optional[Dict] = None
+        response_format: Optional[Dict] = no
     ) -> str:
         """
         发送聊天请求
@@ -63,7 +63,7 @@ class LLMClient:
         
         response = self.client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
-        # 部分模型（如MiniMax M2.5）会在content中包含<think>思考内容，需要移除
+        # 部分模型（如MiniMax M2.5）会在content中Contain<think>思考内容，需要移除
         content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
         return content
     
@@ -74,7 +74,7 @@ class LLMClient:
         max_tokens: int = 4096
     ) -> Dict[str, Any]:
         """
-        发送聊天请求并返回JSON
+        发送聊天请求andBackJSON
         
         Args:
             messages: 消息列表
@@ -99,5 +99,5 @@ class LLMClient:
         try:
             return json.loads(cleaned_response)
         except json.JSONDecodeError:
-            raise ValueError(f"LLM返回的JSON格式无效: {cleaned_response}")
+            raise ValueError(f"LLMBack的JSON格式no效: {cleaned_response}")
 

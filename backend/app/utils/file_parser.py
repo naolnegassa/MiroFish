@@ -10,7 +10,7 @@ from typing import List, Optional
 
 def _read_text_with_fallback(file_path: str) -> str:
     """
-    读取文本文件，UTF-8失败时自动探测编码。
+    读取文本文件，UTF-8Failed时自动探测编码。
     
     采用多级回退策略：
     1. 首先尝试 UTF-8 解码
@@ -33,7 +33,7 @@ def _read_text_with_fallback(file_path: str) -> str:
         pass
     
     # 尝试使用 charset_normalizer 检测编码
-    encoding = None
+    encoding = no
     try:
         from charset_normalizer import from_bytes
         best = from_bytes(data).best()
@@ -47,7 +47,7 @@ def _read_text_with_fallback(file_path: str) -> str:
         try:
             import chardet
             result = chardet.detect(data)
-            encoding = result.get('encoding') if result else None
+            encoding = result.get('encoding') if result else no
         except Exception:
             pass
     
@@ -91,7 +91,7 @@ class FileParser:
         elif suffix == '.txt':
             return cls._extract_from_txt(file_path)
         
-        raise ValueError(f"无法处理的文件格式: {suffix}")
+        raise ValueError(f"no法Handle的文件格式: {suffix}")
     
     @staticmethod
     def _extract_from_pdf(file_path: str) -> str:
@@ -123,13 +123,13 @@ class FileParser:
     @classmethod
     def extract_from_multiple(cls, file_paths: List[str]) -> str:
         """
-        从多个文件提取文本并合并
+        从多items文件提取文本and合and
         
         Args:
             file_paths: 文件路径列表
             
         Returns:
-            合并后的文本
+            合and后的文本
         """
         all_texts = []
         
@@ -139,7 +139,7 @@ class FileParser:
                 filename = Path(file_path).name
                 all_texts.append(f"=== 文档 {i}: {filename} ===\n{text}")
             except Exception as e:
-                all_texts.append(f"=== 文档 {i}: {file_path} (提取失败: {str(e)}) ===")
+                all_texts.append(f"=== 文档 {i}: {file_path} (提取Failed: {str(e)}) ===")
         
         return "\n\n".join(all_texts)
 
@@ -182,7 +182,7 @@ def split_text_into_chunks(
         if chunk:
             chunks.append(chunk)
         
-        # 下一个块从重叠位置开始
+        # 下一items块从重叠位置开始
         start = end - overlap if end < len(text) else len(text)
     
     return chunks

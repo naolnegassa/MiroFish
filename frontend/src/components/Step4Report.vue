@@ -127,9 +127,9 @@
             </div>
           </div>
 
-          <!-- Next Step Button - 在完成后显示 -->
+          <!-- Next Step Button - 在Complete后显示 -->
           <button v-if="isComplete" class="next-step-btn" @click="goToInteraction">
-            <span>进入深度互动</span>
+            <span>进入Deep Interaction</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -194,7 +194,7 @@
                     </div>
                   </template>
                   
-                  <!-- Section Content Generated (内容生成完成，但整个章节可能还没完成) -->
+                  <!-- Section Content Generated (内容生成Complete，但整items章节可能还没Complete) -->
                   <template v-if="log.action === 'section_content'">
                     <div class="section-tag content-ready">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -205,7 +205,7 @@
                     </div>
                   </template>
 
-                  <!-- Section Complete (章节生成完成) -->
+                  <!-- Section Complete (章节生成Complete) -->
                   <template v-if="log.action === 'section_complete'">
                     <div class="section-tag completed">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -315,7 +315,7 @@
                         Final: {{ log.details?.has_final_answer ? 'Yes' : 'No' }}
                       </span>
                     </div>
-                    <!-- 当是最终答案时，显示特殊提示 -->
+                    <!-- 当是最终答案时，显示特殊Notice -->
                     <div v-if="log.details?.has_final_answer" class="final-answer-hint">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -431,15 +431,15 @@ const showRawResult = reactive({})
 
 // Toggle functions
 const toggleRawResult = (timestamp, event) => {
-  // 保存按钮相对于视口的位置
+  // Save按钮相对于视口的位置
   const button = event?.target
   const buttonRect = button?.getBoundingClientRect()
   const buttonTopBeforeToggle = buttonRect?.top
   
-  // 切换状态
+  // 切换Status
   showRawResult[timestamp] = !showRawResult[timestamp]
   
-  // 等待 DOM 更新后，调整滚动位置以保持按钮在相同位置
+  // Waiting DOM Update后，调整滚动位置以保持按钮在相同位置
   if (button && buttonTopBeforeToggle !== undefined && rightPanel.value) {
     nextTick(() => {
       const newButtonRect = button.getBoundingClientRect()
@@ -464,7 +464,7 @@ const toggleSectionContent = (idx) => {
 }
 
 const toggleSectionCollapse = (idx) => {
-  // 只有已完成的章节才能折叠
+  // 只yesCompleted的章节才能折叠
   if (!generatedSections.value[idx + 1]) return
   const newSet = new Set(collapsedSections.value)
   if (newSet.has(idx)) {
@@ -502,7 +502,7 @@ const toolConfig = {
   'panorama_search': {
     name: 'Panorama Search',
     color: 'blue',
-    icon: 'globe' // 地球图标 - 代表全景搜索
+    icon: 'globe' // 地球图标 - 代表全景Search
   },
   'interview_agents': {
     name: 'Agent Interview',
@@ -522,7 +522,7 @@ const toolConfig = {
   'get_entities_by_type': {
     name: 'Entity Query',
     color: 'pink',
-    icon: 'database' // 数据库图标 - 代表实体
+    icon: 'database' // 数据库图标 - 代表Entity
   }
 }
 
@@ -559,10 +559,10 @@ const parseInsightForge = (text) => {
     const reqMatch = text.match(/预测场景:\s*(.+?)(?:\n|$)/)
     if (reqMatch) result.simulationRequirement = reqMatch[1].trim()
     
-    // 提取统计数据 - 匹配"相关预测事实: X条"格式
+    // 提取统计数据 - 匹配"相关预测事实: Xitems"格式
     const factMatch = text.match(/相关预测事实:\s*(\d+)/)
-    const entityMatch = text.match(/涉及实体:\s*(\d+)/)
-    const relMatch = text.match(/关系链:\s*(\d+)/)
+    const entityMatch = text.match(/涉及Entity:\s*(\d+)/)
+    const relMatch = text.match(/Relation链:\s*(\d+)/)
     if (factMatch) result.stats.facts = parseInt(factMatch[1])
     if (entityMatch) result.stats.entities = parseInt(entityMatch[1])
     if (relMatch) result.stats.relationships = parseInt(relMatch[1])
@@ -584,11 +584,11 @@ const parseInsightForge = (text) => {
       }).filter(Boolean)
     }
     
-    // 提取核心实体 - 完整提取，包含摘要和相关事实数
-    const entitySection = text.match(/### 【核心实体】\n([\s\S]*?)(?=\n###|$)/)
+    // 提取核心Entity - 完整提取，Contain摘要和相关事实数
+    const entitySection = text.match(/### 【核心Entity】\n([\s\S]*?)(?=\n###|$)/)
     if (entitySection) {
       const entityText = entitySection[1]
-      // 按 "- **" 分割实体块
+      // 按 "- **" 分割Entity块
       const entityBlocks = entityText.split(/\n(?=- \*\*)/).filter(b => b.trim().startsWith('- **'))
       result.entities = entityBlocks.map(block => {
         const nameMatch = block.match(/^-\s*\*\*(.+?)\*\*\s*\((.+?)\)/)
@@ -603,8 +603,8 @@ const parseInsightForge = (text) => {
       }).filter(e => e.name)
     }
     
-    // 提取关系链 - 完整提取，不限制数量
-    const relSection = text.match(/### 【关系链】\n([\s\S]*?)(?=\n###|$)/)
+    // 提取Relation链 - 完整提取，不限制数量
+    const relSection = text.match(/### 【Relation链】\n([\s\S]*?)(?=\n###|$)/)
     if (relSection) {
       const lines = relSection[1].split('\n').filter(l => l.trim().startsWith('-'))
       result.relations = lines.map(l => {
@@ -637,17 +637,17 @@ const parsePanorama = (text) => {
     if (queryMatch) result.query = queryMatch[1].trim()
     
     // 提取统计数据
-    const nodesMatch = text.match(/总节点数:\s*(\d+)/)
+    const nodesMatch = text.match(/总Nodes数:\s*(\d+)/)
     const edgesMatch = text.match(/总边数:\s*(\d+)/)
-    const activeMatch = text.match(/当前有效事实:\s*(\d+)/)
+    const activeMatch = text.match(/当前yes效事实:\s*(\d+)/)
     const histMatch = text.match(/历史\/过期事实:\s*(\d+)/)
     if (nodesMatch) result.stats.nodes = parseInt(nodesMatch[1])
     if (edgesMatch) result.stats.edges = parseInt(edgesMatch[1])
     if (activeMatch) result.stats.activeFacts = parseInt(activeMatch[1])
     if (histMatch) result.stats.historicalFacts = parseInt(histMatch[1])
     
-    // 提取当前有效事实 - 完整提取，不限制数量
-    const activeSection = text.match(/### 【当前有效事实】[\s\S]*?\n([\s\S]*?)(?=\n###|$)/)
+    // 提取当前yes效事实 - 完整提取，不限制数量
+    const activeSection = text.match(/### 【当前yes效事实】[\s\S]*?\n([\s\S]*?)(?=\n###|$)/)
     if (activeSection) {
       const lines = activeSection[1].split('\n').filter(l => l.match(/^\d+\./))
       result.activeFacts = lines.map(l => {
@@ -667,8 +667,8 @@ const parsePanorama = (text) => {
       }).filter(Boolean)
     }
     
-    // 提取涉及实体 - 完整提取，不限制数量
-    const entitySection = text.match(/### 【涉及实体】\n([\s\S]*?)(?=\n###|$)/)
+    // 提取涉及Entity - 完整提取，不限制数量
+    const entitySection = text.match(/### 【涉及Entity】\n([\s\S]*?)(?=\n###|$)/)
     if (entitySection) {
       const lines = entitySection[1].split('\n').filter(l => l.trim().startsWith('-'))
       result.entities = lines.map(l => {
@@ -714,7 +714,7 @@ const parseInterview = (text) => {
       result.selectionReason = reasonMatch[1].trim()
     }
     
-    // 解析每个人的选择理由
+    // 解析每items人的选择理由
     const parseIndividualReasons = (reasonText) => {
       const reasons = {}
       if (!reasonText) return reasons
@@ -729,7 +729,7 @@ const parseInterview = (text) => {
         let reasonStart = null
         
         // 格式1: 数字. **名字（index=X）**：理由
-        // 例如: 1. **校友_345（index=1）**：作为武大校友...
+        // For example: 1. **校友_345（index=1）**：作为武大校友...
         headerMatch = line.match(/^\d+\.\s*\*\*([^*（(]+)(?:[（(]index\s*=?\s*\d+[)）])?\*\*[：:]\s*(.*)/)
         if (headerMatch) {
           name = headerMatch[1].trim()
@@ -737,7 +737,7 @@ const parseInterview = (text) => {
         }
         
         // 格式2: - 选择名字（index X）：理由
-        // 例如: - 选择家长_601（index 0）：作为家长群体代表...
+        // For example: - 选择家长_601（index 0）：作为家长群体代表...
         if (!headerMatch) {
           headerMatch = line.match(/^-\s*选择([^（(]+)(?:[（(]index\s*=?\s*\d+[)）])?[：:]\s*(.*)/)
           if (headerMatch) {
@@ -747,7 +747,7 @@ const parseInterview = (text) => {
         }
         
         // 格式3: - **名字（index X）**：理由
-        // 例如: - **家长_601（index 0）**：作为家长群体代表...
+        // For example: - **家长_601（index 0）**：作为家长群体代表...
         if (!headerMatch) {
           headerMatch = line.match(/^-\s*\*\*([^*（(]+)(?:[（(]index\s*=?\s*\d+[)）])?\*\*[：:]\s*(.*)/)
           if (headerMatch) {
@@ -757,7 +757,7 @@ const parseInterview = (text) => {
         }
         
         if (name) {
-          // 保存上一个人的理由
+          // Save上一items人的理由
           if (currentName && currentReason.length > 0) {
             reasons[currentName] = currentReason.join(' ').trim()
           }
@@ -770,7 +770,7 @@ const parseInterview = (text) => {
         }
       }
       
-      // 保存最后一个人的理由
+      // Save最后一items人的理由
       if (currentName && currentReason.length > 0) {
         reasons[currentName] = currentReason.join(' ').trim()
       }
@@ -780,7 +780,7 @@ const parseInterview = (text) => {
     
     const individualReasons = parseIndividualReasons(result.selectionReason)
     
-    // 提取每个采访记录
+    // 提取每items采访Log
     const interviewBlocks = text.split(/#### 采访 #\d+:/).slice(1)
     
     interviewBlocks.forEach((block, index) => {
@@ -823,7 +823,7 @@ const parseInterview = (text) => {
         // 按数字编号分割问题
         const questions = qText.split(/\n\d+\.\s+/).filter(q => q.trim())
         if (questions.length > 0) {
-          // 如果第一个问题前面有"1."，需要特殊处理
+          // If第一items问题前面yes"1."，需要特殊Handle
           const firstQ = qText.match(/^1\.\s+(.+)/)
           if (firstQ) {
             interview.questions = [firstQ[1].trim(), ...questions.slice(1).map(q => q.trim())]
@@ -849,9 +849,9 @@ const parseInterview = (text) => {
           interview.redditAnswer = redditMatch[1].trim()
         }
         
-        // 平台回退逻辑（兼容旧格式：只有一个平台标记的情况）
+        // 平台回退逻辑（兼容旧格式：只yes一items平台标记的情况）
         if (!twitterMatch && redditMatch) {
-          // 只有 Reddit 回答，仅在非占位文本时复制为默认显示
+          // 只yes Reddit 回答，仅在非占位文本时Copy为默认显示
           if (interview.redditAnswer && interview.redditAnswer !== '（该平台未获得回复）') {
             interview.twitterAnswer = interview.redditAnswer
           }
@@ -860,7 +860,7 @@ const parseInterview = (text) => {
             interview.redditAnswer = interview.twitterAnswer
           }
         } else if (!twitterMatch && !redditMatch) {
-          // 没有分平台标记（极旧格式），整体作为回答
+          // 没yes分平台标记（极旧格式），整体作为回答
           interview.twitterAnswer = answerText
         }
       }
@@ -871,7 +871,7 @@ const parseInterview = (text) => {
         const quotesText = quotesMatch[1]
         // 优先匹配 > "text" 格式
         let quoteMatches = quotesText.match(/> "([^"]+)"/g)
-        // 回退：匹配 > "text" 或 > \u201Ctext\u201D（中文引号）
+        // 回退：匹配 > "text" or > \u201Ctext\u201D（中文引号）
         if (!quoteMatches) {
           quoteMatches = quotesText.match(/> [\u201C""]([^\u201D""]+)[\u201D""]/g)
         }
@@ -888,7 +888,7 @@ const parseInterview = (text) => {
     })
     
     // 提取采访摘要
-    const summaryMatch = text.match(/### 采访摘要与核心观点\n([\s\S]*?)$/)
+    const summaryMatch = text.match(/### 采访摘要and核心观点\n([\s\S]*?)$/)
     if (summaryMatch) {
       result.summary = summaryMatch[1].trim()
     }
@@ -909,12 +909,12 @@ const parseQuickSearch = (text) => {
   }
   
   try {
-    // 提取搜索查询
-    const queryMatch = text.match(/搜索查询:\s*(.+?)(?:\n|$)/)
+    // 提取Search查询
+    const queryMatch = text.match(/Search查询:\s*(.+?)(?:\n|$)/)
     if (queryMatch) result.query = queryMatch[1].trim()
     
     // 提取结果数量
-    const countMatch = text.match(/找到\s*(\d+)\s*条/)
+    const countMatch = text.match(/找到\s*(\d+)\s*items/)
     if (countMatch) result.count = parseInt(countMatch[1])
     
     // 提取相关事实 - 完整提取，不限制数量
@@ -924,7 +924,7 @@ const parseQuickSearch = (text) => {
       result.facts = lines.map(l => l.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
     }
     
-    // 尝试提取边信息（如果有）
+    // 尝试提取边Info（Ifyes）
     const edgesSection = text.match(/### 相关边:\n([\s\S]*?)(?=\n###|$)/)
     if (edgesSection) {
       const lines = edgesSection[1].split('\n').filter(l => l.trim().startsWith('-'))
@@ -937,8 +937,8 @@ const parseQuickSearch = (text) => {
       }).filter(Boolean)
     }
     
-    // 尝试提取节点信息（如果有）
-    const nodesSection = text.match(/### 相关节点:\n([\s\S]*?)(?=\n###|$)/)
+    // 尝试提取NodesInfo（Ifyes）
+    const nodesSection = text.match(/### 相关Nodes:\n([\s\S]*?)(?=\n###|$)/)
     if (nodesSection) {
       const lines = nodesSection[1].split('\n').filter(l => l.trim().startsWith('-'))
       result.nodes = lines.map(l => {
@@ -1020,13 +1020,13 @@ const InsightDisplay = {
           class: ['insight-tab', { active: activeTab.value === 'entities' }],
           onClick: () => { activeTab.value = 'entities' }
         }, [
-          h('span', { class: 'tab-label' }, `核心实体 (${props.result.entities.length})`)
+          h('span', { class: 'tab-label' }, `核心Entity (${props.result.entities.length})`)
         ]),
         h('button', {
           class: ['insight-tab', { active: activeTab.value === 'relations' }],
           onClick: () => { activeTab.value = 'relations' }
         }, [
-          h('span', { class: 'tab-label' }, `关系链 (${props.result.relations.length})`)
+          h('span', { class: 'tab-label' }, `Relation链 (${props.result.relations.length})`)
         ]),
         props.result.subQueries.length > 0 && h('button', {
           class: ['insight-tab', { active: activeTab.value === 'subqueries' }],
@@ -1042,7 +1042,7 @@ const InsightDisplay = {
         activeTab.value === 'facts' && props.result.facts.length > 0 && h('div', { class: 'facts-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '时序记忆中所关联的最新关键事实'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.facts.length} 条`)
+            h('span', { class: 'panel-count' }, `Total ${props.result.facts.length} items`)
           ]),
           h('div', { class: 'facts-list' },
             (expandedFacts.value ? props.result.facts : props.result.facts.slice(0, INITIAL_SHOW_COUNT)).map((fact, i) => 
@@ -1055,35 +1055,35 @@ const InsightDisplay = {
           props.result.facts.length > INITIAL_SHOW_COUNT && h('button', {
             class: 'expand-btn',
             onClick: () => { expandedFacts.value = !expandedFacts.value }
-          }, expandedFacts.value ? `收起 ▲` : `展开全部 ${props.result.facts.length} 条 ▼`)
+          }, expandedFacts.value ? `收起 ▲` : `展开全部 ${props.result.facts.length} items ▼`)
         ]),
         
         // Entities Tab
         activeTab.value === 'entities' && props.result.entities.length > 0 && h('div', { class: 'entities-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '核心实体'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.entities.length} 个`)
+            h('span', { class: 'panel-title' }, '核心Entity'),
+            h('span', { class: 'panel-count' }, `Total ${props.result.entities.length} items`)
           ]),
           h('div', { class: 'entities-grid' },
             (expandedEntities.value ? props.result.entities : props.result.entities.slice(0, 12)).map((entity, i) => 
               h('div', { class: 'entity-tag', key: i, title: entity.summary || '' }, [
                 h('span', { class: 'entity-name' }, entity.name),
                 h('span', { class: 'entity-type' }, entity.type),
-                entity.relatedFactsCount > 0 && h('span', { class: 'entity-fact-count' }, `${entity.relatedFactsCount}条`)
+                entity.relatedFactsCount > 0 && h('span', { class: 'entity-fact-count' }, `${entity.relatedFactsCount}items`)
               ])
             )
           ),
           props.result.entities.length > 12 && h('button', {
             class: 'expand-btn',
             onClick: () => { expandedEntities.value = !expandedEntities.value }
-          }, expandedEntities.value ? `收起 ▲` : `展开全部 ${props.result.entities.length} 个 ▼`)
+          }, expandedEntities.value ? `收起 ▲` : `展开全部 ${props.result.entities.length} items ▼`)
         ]),
         
         // Relations Tab
         activeTab.value === 'relations' && props.result.relations.length > 0 && h('div', { class: 'relations-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '关系链'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.relations.length} 条`)
+            h('span', { class: 'panel-title' }, 'Relation链'),
+            h('span', { class: 'panel-count' }, `Total ${props.result.relations.length} items`)
           ]),
           h('div', { class: 'relations-list' },
             (expandedRelations.value ? props.result.relations : props.result.relations.slice(0, INITIAL_SHOW_COUNT)).map((rel, i) => 
@@ -1101,14 +1101,14 @@ const InsightDisplay = {
           props.result.relations.length > INITIAL_SHOW_COUNT && h('button', {
             class: 'expand-btn',
             onClick: () => { expandedRelations.value = !expandedRelations.value }
-          }, expandedRelations.value ? `收起 ▲` : `展开全部 ${props.result.relations.length} 条 ▼`)
+          }, expandedRelations.value ? `收起 ▲` : `展开全部 ${props.result.relations.length} items ▼`)
         ]),
         
         // Sub-queries Tab
         activeTab.value === 'subqueries' && props.result.subQueries.length > 0 && h('div', { class: 'subqueries-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '漂移查询生成分析子问题'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.subQueries.length} 个`)
+            h('span', { class: 'panel-count' }, `Total ${props.result.subQueries.length} items`)
           ]),
           h('div', { class: 'subqueries-list' },
             props.result.subQueries.map((sq, i) => 
@@ -1121,9 +1121,9 @@ const InsightDisplay = {
         ]),
         
         // Empty state
-        activeTab.value === 'facts' && props.result.facts.length === 0 && h('div', { class: 'empty-state' }, '暂无当前关键记忆'),
-        activeTab.value === 'entities' && props.result.entities.length === 0 && h('div', { class: 'empty-state' }, '暂无核心实体'),
-        activeTab.value === 'relations' && props.result.relations.length === 0 && h('div', { class: 'empty-state' }, '暂无关系链')
+        activeTab.value === 'facts' && props.result.facts.length === 0 && h('div', { class: 'empty-state' }, '暂no当前关键记忆'),
+        activeTab.value === 'entities' && props.result.entities.length === 0 && h('div', { class: 'empty-state' }, '暂no核心Entity'),
+        activeTab.value === 'relations' && props.result.relations.length === 0 && h('div', { class: 'empty-state' }, '暂noRelation链')
       ])
     ])
   }
@@ -1176,7 +1176,7 @@ const PanoramaDisplay = {
           class: ['panorama-tab', { active: activeTab.value === 'active' }],
           onClick: () => { activeTab.value = 'active' }
         }, [
-          h('span', { class: 'tab-label' }, `当前有效记忆 (${props.result.activeFacts.length})`)
+          h('span', { class: 'tab-label' }, `当前yes效记忆 (${props.result.activeFacts.length})`)
         ]),
         h('button', {
           class: ['panorama-tab', { active: activeTab.value === 'historical' }],
@@ -1188,7 +1188,7 @@ const PanoramaDisplay = {
           class: ['panorama-tab', { active: activeTab.value === 'entities' }],
           onClick: () => { activeTab.value = 'entities' }
         }, [
-          h('span', { class: 'tab-label' }, `涉及实体 (${props.result.entities.length})`)
+          h('span', { class: 'tab-label' }, `涉及Entity (${props.result.entities.length})`)
         ])
       ]),
       
@@ -1197,8 +1197,8 @@ const PanoramaDisplay = {
         // Active Facts Tab
         activeTab.value === 'active' && h('div', { class: 'facts-panel active-facts' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '当前有效记忆'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.activeFacts.length} 条`)
+            h('span', { class: 'panel-title' }, '当前yes效记忆'),
+            h('span', { class: 'panel-count' }, `Total ${props.result.activeFacts.length} items`)
           ]),
           props.result.activeFacts.length > 0 ? h('div', { class: 'facts-list' },
             (expandedActive.value ? props.result.activeFacts : props.result.activeFacts.slice(0, INITIAL_SHOW_COUNT)).map((fact, i) => 
@@ -1207,25 +1207,25 @@ const PanoramaDisplay = {
                 h('div', { class: 'fact-content' }, fact)
               ])
             )
-          ) : h('div', { class: 'empty-state' }, '暂无当前有效记忆'),
+          ) : h('div', { class: 'empty-state' }, '暂no当前yes效记忆'),
           props.result.activeFacts.length > INITIAL_SHOW_COUNT && h('button', {
             class: 'expand-btn',
             onClick: () => { expandedActive.value = !expandedActive.value }
-          }, expandedActive.value ? `收起 ▲` : `展开全部 ${props.result.activeFacts.length} 条 ▼`)
+          }, expandedActive.value ? `收起 ▲` : `展开全部 ${props.result.activeFacts.length} items ▼`)
         ]),
         
         // Historical Facts Tab
         activeTab.value === 'historical' && h('div', { class: 'facts-panel historical-facts' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '历史记忆'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.historicalFacts.length} 条`)
+            h('span', { class: 'panel-count' }, `Total ${props.result.historicalFacts.length} items`)
           ]),
           props.result.historicalFacts.length > 0 ? h('div', { class: 'facts-list' },
             (expandedHistorical.value ? props.result.historicalFacts : props.result.historicalFacts.slice(0, INITIAL_SHOW_COUNT)).map((fact, i) => 
               h('div', { class: 'fact-item historical', key: i }, [
                 h('span', { class: 'fact-number' }, i + 1),
                 h('div', { class: 'fact-content' }, [
-                  // 尝试提取时间信息 [time - time]
+                  // 尝试提取时间Info [time - time]
                   (() => {
                     const timeMatch = fact.match(/^\[(.+?)\]\s*(.*)$/)
                     if (timeMatch) {
@@ -1239,18 +1239,18 @@ const PanoramaDisplay = {
                 ])
               ])
             )
-          ) : h('div', { class: 'empty-state' }, '暂无历史记忆'),
+          ) : h('div', { class: 'empty-state' }, '暂no历史记忆'),
           props.result.historicalFacts.length > INITIAL_SHOW_COUNT && h('button', {
             class: 'expand-btn',
             onClick: () => { expandedHistorical.value = !expandedHistorical.value }
-          }, expandedHistorical.value ? `收起 ▲` : `展开全部 ${props.result.historicalFacts.length} 条 ▼`)
+          }, expandedHistorical.value ? `收起 ▲` : `展开全部 ${props.result.historicalFacts.length} items ▼`)
         ]),
         
         // Entities Tab
         activeTab.value === 'entities' && h('div', { class: 'entities-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '涉及实体'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.entities.length} 个`)
+            h('span', { class: 'panel-title' }, '涉及Entity'),
+            h('span', { class: 'panel-count' }, `Total ${props.result.entities.length} items`)
           ]),
           props.result.entities.length > 0 ? h('div', { class: 'entities-grid' },
             (expandedEntities.value ? props.result.entities : props.result.entities.slice(0, 8)).map((entity, i) => 
@@ -1259,11 +1259,11 @@ const PanoramaDisplay = {
                 entity.type && h('span', { class: 'entity-type' }, entity.type)
               ])
             )
-          ) : h('div', { class: 'empty-state' }, '暂无涉及实体'),
+          ) : h('div', { class: 'empty-state' }, '暂no涉及Entity'),
           props.result.entities.length > 8 && h('button', {
             class: 'expand-btn',
             onClick: () => { expandedEntities.value = !expandedEntities.value }
-          }, expandedEntities.value ? `收起 ▲` : `展开全部 ${props.result.entities.length} 个 ▼`)
+          }, expandedEntities.value ? `收起 ▲` : `展开全部 ${props.result.entities.length} items ▼`)
         ])
       ])
     ])
@@ -1292,16 +1292,16 @@ const InterviewDisplay = {
     
     const activeIndex = ref(0)
     const expandedAnswers = ref(new Set())
-    // 为每个问题-回答对维护独立的平台选择状态
+    // 为每items问题-回答对维护独立的平台选择Status
     const platformTabs = reactive({}) // { 'agentIdx-qIdx': 'twitter' | 'reddit' }
     
-    // 获取某个问题的当前平台选择
+    // Get某items问题的当前平台选择
     const getPlatformTab = (agentIdx, qIdx) => {
       const key = `${agentIdx}-${qIdx}`
       return platformTabs[key] || 'twitter'
     }
     
-    // 设置某个问题的平台选择
+    // 设置某items问题的平台选择
     const setPlatformTab = (agentIdx, qIdx, platform) => {
       const key = `${agentIdx}-${qIdx}`
       platformTabs[key] = platform
@@ -1323,11 +1323,11 @@ const InterviewDisplay = {
       return text.substring(0, 400) + '...'
     }
     
-    // 检查是否为平台占位文本
+    // Check是否为平台占位文本
     const isPlaceholderText = (text) => {
       if (!text) return true
       const t = text.trim()
-      return t === '（该平台未获得回复）' || t === '(该平台未获得回复)' || t === '[无回复]'
+      return t === '（该平台未获得回复）' || t === '(该平台未获得回复)' || t === '[no回复]'
     }
 
     // 尝试按问题编号分割回答
@@ -1336,8 +1336,8 @@ const InterviewDisplay = {
       if (isPlaceholderText(answerText)) return ['']
 
       // 支持两种编号格式：
-      // 1. "问题X：" 或 "问题X:" （中文格式，后端新格式）
-      // 2. "1. " 或 "\n1. " （数字+点，旧格式兼容）
+      // 1. "问题X：" or "问题X:" （中文格式，后端新格式）
+      // 2. "1. " or "\n1. " （数字+点，旧格式兼容）
       let matches = []
       let match
 
@@ -1351,7 +1351,7 @@ const InterviewDisplay = {
         })
       }
 
-      // 如果没匹配到，回退到 "数字." 格式
+      // If没匹配到，回退到 "数字." 格式
       if (matches.length === 0) {
         const numPattern = /(?:^|[\r\n]+)(\d+)\.\s+/g
         while ((match = numPattern.exec(answerText)) !== null) {
@@ -1363,7 +1363,7 @@ const InterviewDisplay = {
         }
       }
 
-      // 如果没有找到编号或只找到一个，返回整体
+      // If没yes找到编号or只找到一items，Back整体
       if (matches.length <= 1) {
         const cleaned = answerText
           .replace(/^问题\d+[：:]\s*/, '')
@@ -1393,7 +1393,7 @@ const InterviewDisplay = {
       return [answerText]
     }
     
-    // 获取某个问题对应的回答
+    // Get某items问题对应的回答
     const getAnswerForQuestion = (interview, qIdx, platform) => {
       const answer = platform === 'twitter' ? interview.twitterAnswer : (interview.redditAnswer || interview.twitterAnswer)
       if (!answer || isPlaceholderText(answer)) return answer || ''
@@ -1401,21 +1401,21 @@ const InterviewDisplay = {
       const questionCount = interview.questions?.length || 1
       const answers = splitAnswerByQuestions(answer, questionCount)
 
-      // 分割成功且索引有效
+      // 分割Success且索引yes效
       if (answers.length > 1 && qIdx < answers.length) {
         return answers[qIdx] || ''
       }
 
-      // 分割失败：第一个问题返回完整回答，其余返回空
+      // 分割Failed：第一items问题Back完整回答，其余Back空
       return qIdx === 0 ? answer : ''
     }
     
-    // 检查某个问题是否有双平台回答（过滤占位文本）
+    // Check某items问题是否yes双平台回答（过滤占位文本）
     const hasMultiplePlatforms = (interview, qIdx) => {
       if (!interview.twitterAnswer || !interview.redditAnswer) return false
       const twitterAnswer = getAnswerForQuestion(interview, qIdx, 'twitter')
       const redditAnswer = getAnswerForQuestion(interview, qIdx, 'reddit')
-      // 两个平台都有真实回答（非占位文本）且内容不同
+      // 两items平台都yes真实回答（非占位文本）且内容不同
       return !isPlaceholderText(twitterAnswer) && !isPlaceholderText(redditAnswer) && twitterAnswer !== redditAnswer
     }
     
@@ -1501,7 +1501,7 @@ const InterviewDisplay = {
                 h('div', { class: 'qa-content' }, [
                   h('div', { class: 'qa-answer-header' }, [
                     h('div', { class: 'qa-sender' }, interview?.name || 'Agent'),
-                    // 双平台切换按钮（仅在有真实双平台回答时显示）
+                    // 双平台切换按钮（仅在yes真实双平台回答时显示）
                     hasDualPlatform && h('div', { class: 'platform-switch' }, [
                       h('button', {
                         class: ['platform-btn', { active: currentPlatform === 'twitter' }],
@@ -1610,7 +1610,7 @@ const QuickSearchDisplay = {
           ])
         ]),
         props.result.query && h('div', { class: 'header-query' }, [
-          h('span', { class: 'query-label' }, '搜索: '),
+          h('span', { class: 'query-label' }, 'Search: '),
           h('span', { class: 'query-text' }, props.result.query)
         ])
       ]),
@@ -1627,13 +1627,13 @@ const QuickSearchDisplay = {
           class: ['quicksearch-tab', { active: activeTab.value === 'edges' }],
           onClick: () => { activeTab.value = 'edges' }
         }, [
-          h('span', { class: 'tab-label' }, `关系 (${props.result.edges.length})`)
+          h('span', { class: 'tab-label' }, `Relation (${props.result.edges.length})`)
         ]),
         hasNodes.value && h('button', {
           class: ['quicksearch-tab', { active: activeTab.value === 'nodes' }],
           onClick: () => { activeTab.value = 'nodes' }
         }, [
-          h('span', { class: 'tab-label' }, `节点 (${props.result.nodes.length})`)
+          h('span', { class: 'tab-label' }, `Nodes (${props.result.nodes.length})`)
         ])
       ]),
       
@@ -1642,8 +1642,8 @@ const QuickSearchDisplay = {
         // Facts (always show if no tabs, or when facts tab is active)
         ((!showTabs.value) || activeTab.value === 'facts') && h('div', { class: 'facts-panel' }, [
           !showTabs.value && h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '搜索结果'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.facts.length} 条`)
+            h('span', { class: 'panel-title' }, 'Search结果'),
+            h('span', { class: 'panel-count' }, `Total ${props.result.facts.length} items`)
           ]),
           props.result.facts.length > 0 ? h('div', { class: 'facts-list' },
             (expandedFacts.value ? props.result.facts : props.result.facts.slice(0, INITIAL_SHOW_COUNT)).map((fact, i) => 
@@ -1656,14 +1656,14 @@ const QuickSearchDisplay = {
           props.result.facts.length > INITIAL_SHOW_COUNT && h('button', {
             class: 'expand-btn',
             onClick: () => { expandedFacts.value = !expandedFacts.value }
-          }, expandedFacts.value ? `收起 ▲` : `展开全部 ${props.result.facts.length} 条 ▼`)
+          }, expandedFacts.value ? `收起 ▲` : `展开全部 ${props.result.facts.length} items ▼`)
         ]),
         
         // Edges Tab
         activeTab.value === 'edges' && hasEdges.value && h('div', { class: 'edges-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '相关关系'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.edges.length} 条`)
+            h('span', { class: 'panel-title' }, '相关Relation'),
+            h('span', { class: 'panel-count' }, `Total ${props.result.edges.length} items`)
           ]),
           h('div', { class: 'edges-list' },
             props.result.edges.map((edge, i) => 
@@ -1683,8 +1683,8 @@ const QuickSearchDisplay = {
         // Nodes Tab
         activeTab.value === 'nodes' && hasNodes.value && h('div', { class: 'nodes-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '相关节点'),
-            h('span', { class: 'panel-count' }, `共 ${props.result.nodes.length} 个`)
+            h('span', { class: 'panel-title' }, '相关Nodes'),
+            h('span', { class: 'panel-count' }, `Total ${props.result.nodes.length} items`)
           ]),
           h('div', { class: 'nodes-grid' },
             props.result.nodes.map((node, i) => 
@@ -1771,12 +1771,12 @@ const activeStep = computed(() => {
   const active = steps.find(s => s.status === 'active')
   if (active) return active
   
-  // 如果没有 active，返回最后一个 done 的步骤
+  // If没yes active，Back最后一items done 的步骤
   const doneSteps = steps.filter(s => s.status === 'done')
   if (doneSteps.length > 0) return doneSteps[doneSteps.length - 1]
   
-  // 否则返回第一个步骤
-  return steps[0] || { noLabel: '--', title: '等待开始', status: 'todo', meta: '' }
+  // elseBack第一items步骤
+  return steps[0] || { noLabel: '--', title: 'Waiting开始', status: 'todo', meta: '' }
 })
 
 const workflowSteps = computed(() => {
@@ -1869,25 +1869,25 @@ const truncateText = (text, maxLen) => {
 const renderMarkdown = (content) => {
   if (!content) return ''
   
-  // 去掉开头的二级标题（## xxx），因为章节标题已在外层显示
+  // 去掉开头的二级标题（## xxx），因为章节标题Completed在外层显示
   let processedContent = content.replace(/^##\s+.+\n+/, '')
   
-  // 处理代码块
+  // Handle代码块
   let html = processedContent.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="code-block"><code>$2</code></pre>')
   
-  // 处理行内代码
+  // Handle行内代码
   html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
   
-  // 处理标题
+  // Handle标题
   html = html.replace(/^#### (.+)$/gm, '<h5 class="md-h5">$1</h5>')
   html = html.replace(/^### (.+)$/gm, '<h4 class="md-h4">$1</h4>')
   html = html.replace(/^## (.+)$/gm, '<h3 class="md-h3">$1</h3>')
   html = html.replace(/^# (.+)$/gm, '<h2 class="md-h2">$1</h2>')
   
-  // 处理引用块
+  // Handle引用块
   html = html.replace(/^> (.+)$/gm, '<blockquote class="md-quote">$1</blockquote>')
   
-  // 处理列表 - 支持子列表
+  // Handle列表 - 支持子列表
   html = html.replace(/^(\s*)- (.+)$/gm, (match, indent, text) => {
     const level = Math.floor(indent.length / 2)
     return `<li class="md-li" data-level="${level}">${text}</li>`
@@ -1897,12 +1897,12 @@ const renderMarkdown = (content) => {
     return `<li class="md-oli" data-level="${level}">${text}</li>`
   })
 
-  // 包装无序列表
+  // 包装no序列表
   html = html.replace(/(<li class="md-li"[^>]*>.*?<\/li>\s*)+/g, '<ul class="md-ul">$&</ul>')
-  // 包装有序列表
+  // 包装yes序列表
   html = html.replace(/(<li class="md-oli"[^>]*>.*?<\/li>\s*)+/g, '<ol class="md-ol">$&</ol>')
 
-  // 清理列表项之间的所有空白
+  // 清理列表项之间的所yes空白
   html = html.replace(/<\/li>\s+<li/g, '</li><li')
   // 清理列表开始标签后的空白
   html = html.replace(/<ul class="md-ul">\s+/g, '<ul class="md-ul">')
@@ -1911,15 +1911,15 @@ const renderMarkdown = (content) => {
   html = html.replace(/\s+<\/ul>/g, '</ul>')
   html = html.replace(/\s+<\/ol>/g, '</ol>')
   
-  // 处理粗体和斜体
+  // Handle粗体和斜体
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
   html = html.replace(/_(.+?)_/g, '<em>$1</em>')
   
-  // 处理分隔线
+  // Handle分隔线
   html = html.replace(/^---$/gm, '<hr class="md-hr">')
   
-  // 处理换行 - 空行变成段落分隔，单换行变成 <br>
+  // Handle换行 - 空行变成段落分隔，单换行变成 <br>
   html = html.replace(/\n\n/g, '</p><p class="md-p">')
   html = html.replace(/\n/g, '<br>')
   
@@ -1942,7 +1942,7 @@ const renderMarkdown = (content) => {
   // 清理块级元素后紧跟的段落开始标签前的 <br>
   html = html.replace(/(<\/ol>|<\/ul>|<\/blockquote>)<br>(<p|<div)/g, '$1$2')
 
-  // 修复非连续有序列表的编号：当单项 <ol> 被段落内容隔开时，保持编号递增
+  // 修复非连续yes序列表的编号：当单项 <ol> 被段落内容隔开时，保持编号递增
   const tokens = html.split(/(<ol class="md-ol">(?:<li class="md-oli"[^>]*>[\s\S]*?<\/li>)+<\/ol>)/g)
   let olCounter = 0
   let inSequence = false
@@ -2006,8 +2006,8 @@ const getActionLabel = (action) => {
 }
 
 const getLogLevelClass = (log) => {
-  if (log.includes('ERROR') || log.includes('错误')) return 'error'
-  if (log.includes('WARNING') || log.includes('警告')) return 'warning'
+  if (log.includes('ERROR') || log.includes('Error')) return 'error'
+  if (log.includes('WARNING') || log.includes('Warning')) return 'warning'
   // INFO 使用默认颜色，不标记为 success
   return ''
 }
@@ -2037,7 +2037,7 @@ const fetchAgentLog = async () => {
             currentSectionIndex.value = log.section_index
           }
 
-          // section_complete - 章节生成完成
+          // section_complete - 章节生成Complete
           if (log.action === 'section_complete') {
             if (log.details?.content) {
               generatedSections.value[log.section_index] = log.details.content
@@ -2049,10 +2049,10 @@ const fetchAgentLog = async () => {
           
           if (log.action === 'report_complete') {
             isComplete.value = true
-            currentSectionIndex.value = null  // 确保清除 loading 状态
+            currentSectionIndex.value = null  // 确保清除 loading Status
             emit('update-status', 'completed')
             stopPolling()
-            // 滚动逻辑统一在循环结束后的 nextTick 中处理
+            // 滚动逻辑统一在循环结束后的 nextTick 中Handle
           }
           
           if (log.action === 'report_start') {
@@ -2064,7 +2064,7 @@ const fetchAgentLog = async () => {
         
         nextTick(() => {
           if (rightPanel.value) {
-            // 如果任务已完成，滚动到顶部；否则滚动到底部跟随最新日志
+            // If任务Completed，滚动到顶部；else滚动到底部跟随最新日志
             if (isComplete.value) {
               rightPanel.value.scrollTop = 0
             } else {
@@ -2103,13 +2103,13 @@ const extractFinalContent = (response) => {
     return chineseFinalMatch[1].trim()
   }
   
-  // 如果以 ## 或 # 或 > 开头，可能是直接的 markdown 内容
+  // If以 ## or # or > 开头，可能是直接的 markdown 内容
   const trimmedResponse = response.trim()
   if (trimmedResponse.match(/^[#>]/)) {
     return trimmedResponse
   }
   
-  // 如果内容较长且包含markdown格式，尝试移除思考过程后返回
+  // If内容较长且Containmarkdown格式，尝试移除思考过程后Back
   if (response.length > 300 && (response.includes('**') || response.includes('>'))) {
     // 移除 Thought: 开头的思考过程
     const thoughtMatch = response.match(/^Thought:[\s\S]*?(?=\n\n[^T]|\n\n$)/i)
@@ -2456,7 +2456,7 @@ watch(() => props.reportId, (newId) => {
 .section-number {
   font-family: 'JetBrains Mono', monospace;
   font-size: 16px;
-  color: #9CA3AF; /* 深灰色，不随状态变化 */
+  color: #9CA3AF; /* 深灰色，不随Status变化 */
   font-weight: 500;
 }
 
@@ -5097,7 +5097,7 @@ watch(() => props.reportId, (newId) => {
   border-radius: 4px;
 }
 
-/* Console Logs - 与 Step3Simulation.vue 保持一致 */
+/* Console Logs - and Step3Simulation.vue 保持一致 */
 .console-logs {
   background: #000;
   color: #DDD;

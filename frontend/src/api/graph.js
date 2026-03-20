@@ -2,7 +2,7 @@ import service, { requestWithRetry } from './index'
 
 /**
  * 生成本体（上传文档和模拟需求）
- * @param {Object} data - 包含files, simulation_requirement, project_name等
+ * @param {Object} data - Containfiles, simulation_requirement, project_name等
  * @returns {Promise}
  */
 export function generateOntology(formData) {
@@ -20,7 +20,7 @@ export function generateOntology(formData) {
 
 /**
  * 构建图谱
- * @param {Object} data - 包含project_id, graph_name等
+ * @param {Object} data - Containproject_id, graph_name等
  * @returns {Promise}
  */
 export function buildGraph(data) {
@@ -46,7 +46,7 @@ export function getTaskStatus(taskId) {
 }
 
 /**
- * 获取图谱数据
+ * Get图谱数据
  * @param {String} graphId - 图谱ID
  * @returns {Promise}
  */
@@ -58,7 +58,7 @@ export function getGraphData(graphId) {
 }
 
 /**
- * 获取项目信息
+ * Get项目Info
  * @param {String} projectId - 项目ID
  * @returns {Promise}
  */

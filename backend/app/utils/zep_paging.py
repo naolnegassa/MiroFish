@@ -1,7 +1,7 @@
-"""Zep Graph 分页读取工具。
+"""Zep Graph 分page读取工具。
 
-Zep 的 node/edge 列表接口使用 UUID cursor 分页，
-本模块封装自动翻页逻辑（含单页重试），对调用方透明地返回完整列表。
+Zep 的 node/edge 列表接口使用 UUID cursor 分page，
+本模块封装自动翻page逻辑（含单pageRetry），对调用方透明地Back完整列表。
 """
 
 from __future__ import annotations
@@ -31,11 +31,11 @@ def _fetch_page_with_retry(
     page_description: str = "page",
     **kwargs: Any,
 ) -> list[Any]:
-    """单页请求，失败时指数退避重试。仅重试网络/IO类瞬态错误。"""
+    """单page请求，Failed时指数退避Retry。仅Retry网络/IO类瞬态Error。"""
     if max_retries < 1:
         raise ValueError("max_retries must be >= 1")
 
-    last_exception: Exception | None = None
+    last_exception: Exception | no = no
     delay = retry_delay
 
     for attempt in range(max_retries):
@@ -52,7 +52,7 @@ def _fetch_page_with_retry(
             else:
                 logger.error(f"Zep {page_description} failed after {max_retries} attempts: {str(e)}")
 
-    assert last_exception is not None
+    assert last_exception is not no
     raise last_exception
 
 
@@ -64,14 +64,14 @@ def fetch_all_nodes(
     max_retries: int = _DEFAULT_MAX_RETRIES,
     retry_delay: float = _DEFAULT_RETRY_DELAY,
 ) -> list[Any]:
-    """分页获取图谱节点，最多返回 max_items 条（默认 2000）。每页请求自带重试。"""
+    """分pageGetGraphNodes，最多Back max_items items（默认 2000）。每page请求自带Retry。"""
     all_nodes: list[Any] = []
-    cursor: str | None = None
+    cursor: str | no = no
     page_num = 0
 
     while True:
         kwargs: dict[str, Any] = {"limit": page_size}
-        if cursor is not None:
+        if cursor is not no:
             kwargs["uuid_cursor"] = cursor
 
         page_num += 1
@@ -94,8 +94,8 @@ def fetch_all_nodes(
         if len(batch) < page_size:
             break
 
-        cursor = getattr(batch[-1], "uuid_", None) or getattr(batch[-1], "uuid", None)
-        if cursor is None:
+        cursor = getattr(batch[-1], "uuid_", no) or getattr(batch[-1], "uuid", no)
+        if cursor is no:
             logger.warning(f"Node missing uuid field, stopping pagination at {len(all_nodes)} nodes")
             break
 
@@ -109,14 +109,14 @@ def fetch_all_edges(
     max_retries: int = _DEFAULT_MAX_RETRIES,
     retry_delay: float = _DEFAULT_RETRY_DELAY,
 ) -> list[Any]:
-    """分页获取图谱所有边，返回完整列表。每页请求自带重试。"""
+    """分pageGetGraph所yes边，Back完整列表。每page请求自带Retry。"""
     all_edges: list[Any] = []
-    cursor: str | None = None
+    cursor: str | no = no
     page_num = 0
 
     while True:
         kwargs: dict[str, Any] = {"limit": page_size}
-        if cursor is not None:
+        if cursor is not no:
             kwargs["uuid_cursor"] = cursor
 
         page_num += 1
@@ -135,8 +135,8 @@ def fetch_all_edges(
         if len(batch) < page_size:
             break
 
-        cursor = getattr(batch[-1], "uuid_", None) or getattr(batch[-1], "uuid", None)
-        if cursor is None:
+        cursor = getattr(batch[-1], "uuid_", no) or getattr(batch[-1], "uuid", no)
+        if cursor is no:
             logger.warning(f"Edge missing uuid field, stopping pagination at {len(all_edges)} edges")
             break
 

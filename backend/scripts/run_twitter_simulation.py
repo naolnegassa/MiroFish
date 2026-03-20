@@ -1,16 +1,16 @@
 """
 OASIS Twitter模拟预设脚本
-此脚本读取配置文件中的参数来执行模拟，实现全程自动化
+此脚本读取配置文件中的参数来Execute模拟，实现全程自动化
 
 功能特性:
-- 完成模拟后不立即关闭环境，进入等待命令模式
-- 支持通过IPC接收Interview命令
-- 支持单个Agent采访和批量采访
-- 支持远程关闭环境命令
+- Complete模拟后不立That isClose环境，进入Waiting命令模式
+- 支持ThroughIPC接收Interview命令
+- 支持单itemsAgent采访和批量采访
+- 支持远程Close环境命令
 
 使用方式:
     python run_twitter_simulation.py --config /path/to/simulation_config.json
-    python run_twitter_simulation.py --config /path/to/simulation_config.json --no-wait  # 完成后立即关闭
+    python run_twitter_simulation.py --config /path/to/simulation_config.json --no-wait  # Complete后立That isClose
 """
 
 import argparse
@@ -25,18 +25,18 @@ import sqlite3
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-# 全局变量：用于信号处理
-_shutdown_event = None
+# 全局变量：用于信号Handle
+_shutdown_event = no
 _cleanup_done = False
 
-# 添加项目路径
+# 添加Project路径
 _scripts_dir = os.path.dirname(os.path.abspath(__file__))
 _backend_dir = os.path.abspath(os.path.join(_scripts_dir, '..'))
 _project_root = os.path.abspath(os.path.join(_backend_dir, '..'))
 sys.path.insert(0, _scripts_dir)
 sys.path.insert(0, _backend_dir)
 
-# 加载项目根目录的 .env 文件（包含 LLM_API_KEY 等配置）
+# LoadProject根目录的 .env 文件（Contain LLM_API_KEY 等配置）
 from dotenv import load_dotenv
 _env_file = os.path.join(_project_root, '.env')
 if os.path.exists(_env_file):
@@ -68,16 +68,16 @@ class UnicodeFormatter(logging.Formatter):
 
 
 class MaxTokensWarningFilter(logging.Filter):
-    """过滤掉 camel-ai 关于 max_tokens 的警告（我们故意不设置 max_tokens，让模型自行决定）"""
+    """过滤掉 camel-ai 关于 max_tokens 的Warning（我们故意不设置 max_tokens，让模型自行决定）"""
     
     def filter(self, record):
-        # 过滤掉包含 max_tokens 警告的日志
+        # 过滤掉Contain max_tokens Warning的日志
         if "max_tokens" in record.getMessage() and "Invalid or missing" in record.getMessage():
             return False
         return True
 
 
-# 在模块加载时立即添加过滤器，确保在 camel 代码执行前生效
+# 在模块Load时立That is添加过滤器，确保在 camel 代码Execute前生效
 logging.getLogger().addFilter(MaxTokensWarningFilter())
 
 
@@ -126,7 +126,7 @@ try:
         generate_twitter_agent_graph
     )
 except ImportError as e:
-    print(f"错误: 缺少依赖 {e}")
+    print(f"Error: 缺少依赖 {e}")
     print("请先安装: pip install oasis-ai camel-ai")
     sys.exit(1)
 
@@ -137,14 +137,14 @@ IPC_RESPONSES_DIR = "ipc_responses"
 ENV_STATUS_FILE = "env_status.json"
 
 class CommandType:
-    """命令类型常量"""
+    """命令Type常量"""
     INTERVIEW = "interview"
     BATCH_INTERVIEW = "batch_interview"
     CLOSE_ENV = "close_env"
 
 
 class IPCHandler:
-    """IPC命令处理器"""
+    """IPC命令Handle器"""
     
     def __init__(self, simulation_dir: str, env, agent_graph):
         self.simulation_dir = simulation_dir
@@ -160,7 +160,7 @@ class IPCHandler:
         os.makedirs(self.responses_dir, exist_ok=True)
     
     def update_status(self, status: str):
-        """更新环境状态"""
+        """Update环境Status"""
         with open(self.status_file, 'w', encoding='utf-8') as f:
             json.dump({
                 "status": status,
@@ -168,11 +168,11 @@ class IPCHandler:
             }, f, ensure_ascii=False, indent=2)
     
     def poll_command(self) -> Optional[Dict[str, Any]]:
-        """轮询获取待处理命令"""
+        """rounds询Get待Handle命令"""
         if not os.path.exists(self.commands_dir):
-            return None
+            return no
         
-        # 获取命令文件（按时间排序）
+        # Get命令文件（按时间Sort）
         command_files = []
         for filename in os.listdir(self.commands_dir):
             if filename.endswith('.json'):
@@ -188,9 +188,9 @@ class IPCHandler:
             except (json.JSONDecodeError, OSError):
                 continue
         
-        return None
+        return no
     
-    def send_response(self, command_id: str, status: str, result: Dict = None, error: str = None):
+    def send_response(self, command_id: str, status: str, result: Dict = no, error: str = no):
         """发送响应"""
         response = {
             "command_id": command_id,
@@ -204,7 +204,7 @@ class IPCHandler:
         with open(response_file, 'w', encoding='utf-8') as f:
             json.dump(response, f, ensure_ascii=False, indent=2)
         
-        # 删除命令文件
+        # Delete命令文件
         command_file = os.path.join(self.commands_dir, f"{command_id}.json")
         try:
             os.remove(command_file)
@@ -213,41 +213,41 @@ class IPCHandler:
     
     async def handle_interview(self, command_id: str, agent_id: int, prompt: str) -> bool:
         """
-        处理单个Agent采访命令
+        Handle单itemsAgent采访命令
         
         Returns:
-            True 表示成功，False 表示失败
+            True 表示Success，False 表示Failed
         """
         try:
-            # 获取Agent
+            # GetAgent
             agent = self.agent_graph.get_agent(agent_id)
             
-            # 创建Interview动作
+            # CreateInterview动作
             interview_action = ManualAction(
                 action_type=ActionType.INTERVIEW,
                 action_args={"prompt": prompt}
             )
             
-            # 执行Interview
+            # ExecuteInterview
             actions = {agent: interview_action}
             await self.env.step(actions)
             
-            # 从数据库获取结果
+            # 从数据库Get结果
             result = self._get_interview_result(agent_id)
             
             self.send_response(command_id, "completed", result=result)
-            print(f"  Interview完成: agent_id={agent_id}")
+            print(f"  InterviewComplete: agent_id={agent_id}")
             return True
             
         except Exception as e:
             error_msg = str(e)
-            print(f"  Interview失败: agent_id={agent_id}, error={error_msg}")
+            print(f"  InterviewFailed: agent_id={agent_id}, error={error_msg}")
             self.send_response(command_id, "failed", error=error_msg)
             return False
     
     async def handle_batch_interview(self, command_id: str, interviews: List[Dict]) -> bool:
         """
-        处理批量采访命令
+        Handle批量采访命令
         
         Args:
             interviews: [{"agent_id": int, "prompt": str}, ...]
@@ -255,7 +255,7 @@ class IPCHandler:
         try:
             # 构建动作字典
             actions = {}
-            agent_prompts = {}  # 记录每个agent的prompt
+            agent_prompts = {}  # Log每itemsagent的prompt
             
             for interview in interviews:
                 agent_id = interview.get("agent_id")
@@ -269,16 +269,16 @@ class IPCHandler:
                     )
                     agent_prompts[agent_id] = prompt
                 except Exception as e:
-                    print(f"  警告: 无法获取Agent {agent_id}: {e}")
+                    print(f"  Warning: no法GetAgent {agent_id}: {e}")
             
             if not actions:
-                self.send_response(command_id, "failed", error="没有有效的Agent")
+                self.send_response(command_id, "failed", error="没yesyes效的Agent")
                 return False
             
-            # 执行批量Interview
+            # Execute批量Interview
             await self.env.step(actions)
             
-            # 获取所有结果
+            # Get所yes结果
             results = {}
             for agent_id in agent_prompts.keys():
                 result = self._get_interview_result(agent_id)
@@ -288,23 +288,23 @@ class IPCHandler:
                 "interviews_count": len(results),
                 "results": results
             })
-            print(f"  批量Interview完成: {len(results)} 个Agent")
+            print(f"  批量InterviewComplete: {len(results)} itemsAgent")
             return True
             
         except Exception as e:
             error_msg = str(e)
-            print(f"  批量Interview失败: {error_msg}")
+            print(f"  批量InterviewFailed: {error_msg}")
             self.send_response(command_id, "failed", error=error_msg)
             return False
     
     def _get_interview_result(self, agent_id: int) -> Dict[str, Any]:
-        """从数据库获取最新的Interview结果"""
+        """从数据库Get最新的Interview结果"""
         db_path = os.path.join(self.simulation_dir, "twitter_simulation.db")
         
         result = {
             "agent_id": agent_id,
-            "response": None,
-            "timestamp": None
+            "response": no,
+            "timestamp": no
         }
         
         if not os.path.exists(db_path):
@@ -314,7 +314,7 @@ class IPCHandler:
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             
-            # 查询最新的Interview记录
+            # 查询最新的InterviewLog
             cursor.execute("""
                 SELECT user_id, info, created_at
                 FROM trace
@@ -336,16 +336,16 @@ class IPCHandler:
             conn.close()
             
         except Exception as e:
-            print(f"  读取Interview结果失败: {e}")
+            print(f"  读取Interview结果Failed: {e}")
         
         return result
     
     async def process_commands(self) -> bool:
         """
-        处理所有待处理命令
+        Handle所yes待Handle命令
         
         Returns:
-            True 表示继续运行，False 表示应该退出
+            True 表示Resume运行，False 表示应该退出
         """
         command = self.poll_command()
         if not command:
@@ -373,19 +373,19 @@ class IPCHandler:
             return True
             
         elif command_type == CommandType.CLOSE_ENV:
-            print("收到关闭环境命令")
-            self.send_response(command_id, "completed", result={"message": "环境即将关闭"})
+            print("收到Close环境命令")
+            self.send_response(command_id, "completed", result={"message": "环境That is将Close"})
             return False
         
         else:
-            self.send_response(command_id, "failed", error=f"未知命令类型: {command_type}")
+            self.send_response(command_id, "failed", error=f"未知命令Type: {command_type}")
             return True
 
 
 class TwitterSimulationRunner:
     """Twitter模拟运行器"""
     
-    # Twitter可用动作（不包含INTERVIEW，INTERVIEW只能通过ManualAction手动触发）
+    # Twitter可用动作（不ContainINTERVIEW，INTERVIEW只能ThroughManualAction手动触发）
     AVAILABLE_ACTIONS = [
         ActionType.CREATE_POST,
         ActionType.LIKE_POST,
@@ -397,38 +397,38 @@ class TwitterSimulationRunner:
     
     def __init__(self, config_path: str, wait_for_commands: bool = True):
         """
-        初始化模拟运行器
+        Initialize模拟运行器
         
         Args:
             config_path: 配置文件路径 (simulation_config.json)
-            wait_for_commands: 模拟完成后是否等待命令（默认True）
+            wait_for_commands: 模拟Complete后是否Waiting命令（默认True）
         """
         self.config_path = config_path
         self.config = self._load_config()
         self.simulation_dir = os.path.dirname(config_path)
         self.wait_for_commands = wait_for_commands
-        self.env = None
-        self.agent_graph = None
-        self.ipc_handler = None
+        self.env = no
+        self.agent_graph = no
+        self.ipc_handler = no
         
     def _load_config(self) -> Dict[str, Any]:
-        """加载配置文件"""
+        """Load配置文件"""
         with open(self.config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     
     def _get_profile_path(self) -> str:
-        """获取Profile文件路径（OASIS Twitter使用CSV格式）"""
+        """GetProfile文件路径（OASIS Twitter使用CSV格式）"""
         return os.path.join(self.simulation_dir, "twitter_profiles.csv")
     
     def _get_db_path(self) -> str:
-        """获取数据库路径"""
+        """Get数据库路径"""
         return os.path.join(self.simulation_dir, "twitter_simulation.db")
     
     def _create_model(self):
         """
-        创建LLM模型
+        CreateLLM模型
         
-        统一使用项目根目录 .env 文件中的配置（优先级最高）：
+        统一使用Project根目录 .env 文件中的配置（优先级最高）：
         - LLM_API_KEY: API密钥
         - LLM_BASE_URL: API基础URL
         - LLM_MODEL_NAME: 模型名称
@@ -438,7 +438,7 @@ class TwitterSimulationRunner:
         llm_base_url = os.environ.get("LLM_BASE_URL", "")
         llm_model = os.environ.get("LLM_MODEL_NAME", "")
         
-        # 如果 .env 中没有，则使用 config 作为备用
+        # If .env 中没yes，则使用 config 作为备用
         if not llm_model:
             llm_model = self.config.get("llm_model", "gpt-4o-mini")
         
@@ -447,12 +447,12 @@ class TwitterSimulationRunner:
             os.environ["OPENAI_API_KEY"] = llm_api_key
         
         if not os.environ.get("OPENAI_API_KEY"):
-            raise ValueError("缺少 API Key 配置，请在项目根目录 .env 文件中设置 LLM_API_KEY")
+            raise ValueError("缺少 API Key 配置，请在Project根目录 .env 文件中设置 LLM_API_KEY")
         
         if llm_base_url:
             os.environ["OPENAI_API_BASE_URL"] = llm_base_url
         
-        print(f"LLM配置: model={llm_model}, base_url={llm_base_url[:40] if llm_base_url else '默认'}...")
+        print(f"LLM configuration: model={llm_model}, base_url={llm_base_url[:40] if llm_base_url else '默认'}...")
         
         return ModelFactory.create(
             model_platform=ModelPlatformType.OPENAI,
@@ -466,12 +466,12 @@ class TwitterSimulationRunner:
         round_num: int
     ) -> List:
         """
-        根据时间和配置决定本轮激活哪些Agent
+        根据时间和配置决定本rounds激活哪些Agent
         
         Args:
             env: OASIS环境
             current_hour: 当前模拟小时（0-23）
-            round_num: 当前轮数
+            round_num: 当前rounds数
             
         Returns:
             激活的Agent列表
@@ -496,14 +496,14 @@ class TwitterSimulationRunner:
         
         target_count = int(random.uniform(base_min, base_max) * multiplier)
         
-        # 根据每个Agent的配置计算激活概率
+        # 根据每itemsAgent的配置计算激活概率
         candidates = []
         for cfg in agent_configs:
             agent_id = cfg.get("agent_id", 0)
             active_hours = cfg.get("active_hours", list(range(8, 23)))
             activity_level = cfg.get("activity_level", 0.5)
             
-            # 检查是否在活跃时间
+            # Check是否在活跃时间
             if current_hour not in active_hours:
                 continue
             
@@ -528,51 +528,51 @@ class TwitterSimulationRunner:
         
         return active_agents
     
-    async def run(self, max_rounds: int = None):
+    async def run(self, max_rounds: int = no):
         """运行Twitter模拟
         
         Args:
-            max_rounds: 最大模拟轮数（可选，用于截断过长的模拟）
+            max_rounds: 最大Simulation Rounds（可选，用于截断过长的模拟）
         """
         print("=" * 60)
         print("OASIS Twitter模拟")
         print(f"配置文件: {self.config_path}")
         print(f"模拟ID: {self.config.get('simulation_id', 'unknown')}")
-        print(f"等待命令模式: {'启用' if self.wait_for_commands else '禁用'}")
+        print(f"Waiting命令模式: {'启用' if self.wait_for_commands else '禁用'}")
         print("=" * 60)
         
-        # 加载时间配置
+        # LoadTime configuration
         time_config = self.config.get("time_config", {})
         total_hours = time_config.get("total_simulation_hours", 72)
         minutes_per_round = time_config.get("minutes_per_round", 30)
         
-        # 计算总轮数
+        # 计算总rounds数
         total_rounds = (total_hours * 60) // minutes_per_round
         
-        # 如果指定了最大轮数，则截断
-        if max_rounds is not None and max_rounds > 0:
+        # If指定了最大rounds数，则截断
+        if max_rounds is not no and max_rounds > 0:
             original_rounds = total_rounds
             total_rounds = min(total_rounds, max_rounds)
             if total_rounds < original_rounds:
-                print(f"\n轮数已截断: {original_rounds} -> {total_rounds} (max_rounds={max_rounds})")
+                print(f"\nrounds数Completed截断: {original_rounds} -> {total_rounds} (max_rounds={max_rounds})")
         
-        print(f"\n模拟参数:")
+        print(f"\nSimulation parameters:")
         print(f"  - 总模拟时长: {total_hours}小时")
-        print(f"  - 每轮时间: {minutes_per_round}分钟")
-        print(f"  - 总轮数: {total_rounds}")
+        print(f"  - 每rounds时间: {minutes_per_round}分钟")
+        print(f"  - 总rounds数: {total_rounds}")
         if max_rounds:
-            print(f"  - 最大轮数限制: {max_rounds}")
+            print(f"  - 最大rounds数限制: {max_rounds}")
         print(f"  - Agent数量: {len(self.config.get('agent_configs', []))}")
         
-        # 创建模型
-        print("\n初始化LLM模型...")
+        # Create模型
+        print("\nInitializeLLM模型...")
         model = self._create_model()
         
-        # 加载Agent图
-        print("加载Agent Profile...")
+        # LoadAgent图
+        print("LoadAgent Profile...")
         profile_path = self._get_profile_path()
         if not os.path.exists(profile_path):
-            print(f"错误: Profile文件不存在: {profile_path}")
+            print(f"Error: Profile文件不存在: {profile_path}")
             return
         
         self.agent_graph = await generate_twitter_agent_graph(
@@ -585,30 +585,30 @@ class TwitterSimulationRunner:
         db_path = self._get_db_path()
         if os.path.exists(db_path):
             os.remove(db_path)
-            print(f"已删除旧数据库: {db_path}")
+            print(f"CompletedDelete旧数据库: {db_path}")
         
-        # 创建环境
-        print("创建OASIS环境...")
+        # Create环境
+        print("CreateOASIS环境...")
         self.env = oasis.make(
             agent_graph=self.agent_graph,
             platform=oasis.DefaultPlatformType.TWITTER,
             database_path=db_path,
-            semaphore=30,  # 限制最大并发 LLM 请求数，防止 API 过载
+            semaphore=30,  # 限制最大and发 LLM 请求数，防止 API 过载
         )
         
         await self.env.reset()
-        print("环境初始化完成\n")
+        print("环境InitializeComplete\n")
         
-        # 初始化IPC处理器
+        # InitializeIPCHandle器
         self.ipc_handler = IPCHandler(self.simulation_dir, self.env, self.agent_graph)
         self.ipc_handler.update_status("running")
         
-        # 执行初始事件
+        # Execute初始事件
         event_config = self.config.get("event_config", {})
         initial_posts = event_config.get("initial_posts", [])
         
         if initial_posts:
-            print(f"执行初始事件 ({len(initial_posts)}条初始帖子)...")
+            print(f"Execute初始事件 ({len(initial_posts)}items初始帖子)...")
             initial_actions = {}
             for post in initial_posts:
                 agent_id = post.get("poster_agent_id", 0)
@@ -620,23 +620,23 @@ class TwitterSimulationRunner:
                         action_args={"content": content}
                     )
                 except Exception as e:
-                    print(f"  警告: 无法为Agent {agent_id}创建初始帖子: {e}")
+                    print(f"  Warning: no法为Agent {agent_id}Create初始帖子: {e}")
             
             if initial_actions:
                 await self.env.step(initial_actions)
-                print(f"  已发布 {len(initial_actions)} 条初始帖子")
+                print(f"  Completed发布 {len(initial_actions)} items初始帖子")
         
         # 主模拟循环
-        print("\n开始模拟循环...")
+        print("\nStart Simulation循环...")
         start_time = datetime.now()
         
         for round_num in range(total_rounds):
-            # 计算当前模拟时间
+            # 计算当前Simulation time
             simulated_minutes = round_num * minutes_per_round
             simulated_hour = (simulated_minutes // 60) % 24
             simulated_day = simulated_minutes // (60 * 24) + 1
             
-            # 获取本轮激活的Agent
+            # Get本rounds激活的Agent
             active_agents = self._get_active_agents_for_round(
                 self.env, simulated_hour, round_num
             )
@@ -650,7 +650,7 @@ class TwitterSimulationRunner:
                 for _, agent in active_agents
             }
             
-            # 执行动作
+            # Execute动作
             await self.env.step(actions)
             
             # 打印进度
@@ -663,20 +663,20 @@ class TwitterSimulationRunner:
                       f"- elapsed: {elapsed:.1f}s")
         
         total_elapsed = (datetime.now() - start_time).total_seconds()
-        print(f"\n模拟循环完成!")
+        print(f"\n模拟循环Complete!")
         print(f"  - 总耗时: {total_elapsed:.1f}秒")
         print(f"  - 数据库: {db_path}")
         
-        # 是否进入等待命令模式
+        # 是否进入Waiting命令模式
         if self.wait_for_commands:
             print("\n" + "=" * 60)
-            print("进入等待命令模式 - 环境保持运行")
+            print("进入Waiting命令模式 - 环境保持运行")
             print("支持的命令: interview, batch_interview, close_env")
             print("=" * 60)
             
             self.ipc_handler.update_status("alive")
             
-            # 等待命令循环（使用全局 _shutdown_event）
+            # Waiting命令循环（使用全局 _shutdown_event）
             try:
                 while not _shutdown_event.is_set():
                     should_continue = await self.ipc_handler.process_commands()
@@ -690,17 +690,17 @@ class TwitterSimulationRunner:
             except KeyboardInterrupt:
                 print("\n收到中断信号")
             except asyncio.CancelledError:
-                print("\n任务被取消")
+                print("\n任务被Cancel")
             except Exception as e:
-                print(f"\n命令处理出错: {e}")
+                print(f"\n命令Handle出错: {e}")
             
-            print("\n关闭环境...")
+            print("\nClose环境...")
         
-        # 关闭环境
+        # Close环境
         self.ipc_handler.update_status("stopped")
         await self.env.close()
         
-        print("环境已关闭")
+        print("环境CompletedClose")
         print("=" * 60)
 
 
@@ -715,27 +715,27 @@ async def main():
     parser.add_argument(
         '--max-rounds',
         type=int,
-        default=None,
-        help='最大模拟轮数（可选，用于截断过长的模拟）'
+        default=no,
+        help='最大Simulation Rounds（可选，用于截断过长的模拟）'
     )
     parser.add_argument(
         '--no-wait',
         action='store_true',
         default=False,
-        help='模拟完成后立即关闭环境，不进入等待命令模式'
+        help='模拟Complete后立That isClose环境，不进入Waiting命令模式'
     )
     
     args = parser.parse_args()
     
-    # 在 main 函数开始时创建 shutdown 事件
+    # 在 main 函数开始时Create shutdown 事件
     global _shutdown_event
     _shutdown_event = asyncio.Event()
     
     if not os.path.exists(args.config):
-        print(f"错误: 配置文件不存在: {args.config}")
+        print(f"Error: 配置文件不存在: {args.config}")
         sys.exit(1)
     
-    # 初始化日志配置（使用固定文件名，清理旧日志）
+    # Initialize日志配置（使用固定文件名，清理旧日志）
     simulation_dir = os.path.dirname(args.config) or "."
     setup_oasis_logging(os.path.join(simulation_dir, "log"))
     
@@ -748,8 +748,8 @@ async def main():
 
 def setup_signal_handlers():
     """
-    设置信号处理器，确保收到 SIGTERM/SIGINT 时能够正确退出
-    让程序有机会正常清理资源（关闭数据库、环境等）
+    设置信号Handle器，确保收到 SIGTERM/SIGINT 时能够正确退出
+    让程序yes机会正常清理资Source（Close数据库、环境等）
     """
     def signal_handler(signum, frame):
         global _cleanup_done
@@ -777,4 +777,4 @@ if __name__ == "__main__":
     except SystemExit:
         pass
     finally:
-        print("模拟进程已退出")
+        print("模拟进程Completed退出")

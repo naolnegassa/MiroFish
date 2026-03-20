@@ -1,6 +1,6 @@
 """
-任务状态管理
-用于跟踪长时间运行的任务（如图谱构建）
+任务Status管理
+用于跟踪长时间运行的任务（如Graph Construction）
 """
 
 import uuid
@@ -12,11 +12,11 @@ from dataclasses import dataclass, field
 
 
 class TaskStatus(str, Enum):
-    """任务状态枚举"""
-    PENDING = "pending"          # 等待中
-    PROCESSING = "processing"    # 处理中
-    COMPLETED = "completed"      # 已完成
-    FAILED = "failed"            # 失败
+    """任务Status枚举"""
+    PENDING = "pending"          # Waiting中
+    PROCESSING = "processing"    # Handle中
+    COMPLETED = "completed"      # Completed
+    FAILED = "failed"            # Failed
 
 
 @dataclass
@@ -28,14 +28,14 @@ class Task:
     created_at: datetime
     updated_at: datetime
     progress: int = 0              # 总进度百分比 0-100
-    message: str = ""              # 状态消息
-    result: Optional[Dict] = None  # 任务结果
-    error: Optional[str] = None    # 错误信息
+    message: str = ""              # Status消息
+    result: Optional[Dict] = no  # 任务结果
+    error: Optional[str] = no    # ErrorInfo
     metadata: Dict = field(default_factory=dict)  # 额外元数据
-    progress_detail: Dict = field(default_factory=dict)  # 详细进度信息
+    progress_detail: Dict = field(default_factory=dict)  # 详细进度Info
     
     def to_dict(self) -> Dict[str, Any]:
-        """转换为字典"""
+        """Convert to dictionary"""
         return {
             "task_id": self.task_id,
             "task_type": self.task_type,
@@ -54,28 +54,28 @@ class Task:
 class TaskManager:
     """
     任务管理器
-    线程安全的任务状态管理
+    线程安全的任务Status管理
     """
     
-    _instance = None
+    _instance = no
     _lock = threading.Lock()
     
     def __new__(cls):
         """单例模式"""
-        if cls._instance is None:
+        if cls._instance is no:
             with cls._lock:
-                if cls._instance is None:
+                if cls._instance is no:
                     cls._instance = super().__new__(cls)
                     cls._instance._tasks: Dict[str, Task] = {}
                     cls._instance._task_lock = threading.Lock()
         return cls._instance
     
-    def create_task(self, task_type: str, metadata: Optional[Dict] = None) -> str:
+    def create_task(self, task_type: str, metadata: Optional[Dict] = no) -> str:
         """
-        创建新任务
+        Create新任务
         
         Args:
-            task_type: 任务类型
+            task_type: 任务Type
             metadata: 额外元数据
             
         Returns:
@@ -99,69 +99,69 @@ class TaskManager:
         return task_id
     
     def get_task(self, task_id: str) -> Optional[Task]:
-        """获取任务"""
+        """Get任务"""
         with self._task_lock:
             return self._tasks.get(task_id)
     
     def update_task(
         self,
         task_id: str,
-        status: Optional[TaskStatus] = None,
-        progress: Optional[int] = None,
-        message: Optional[str] = None,
-        result: Optional[Dict] = None,
-        error: Optional[str] = None,
-        progress_detail: Optional[Dict] = None
+        status: Optional[TaskStatus] = no,
+        progress: Optional[int] = no,
+        message: Optional[str] = no,
+        result: Optional[Dict] = no,
+        error: Optional[str] = no,
+        progress_detail: Optional[Dict] = no
     ):
         """
-        更新任务状态
+        Update任务Status
         
         Args:
             task_id: 任务ID
-            status: 新状态
+            status: 新Status
             progress: 进度
             message: 消息
             result: 结果
-            error: 错误信息
-            progress_detail: 详细进度信息
+            error: ErrorInfo
+            progress_detail: 详细进度Info
         """
         with self._task_lock:
             task = self._tasks.get(task_id)
             if task:
                 task.updated_at = datetime.now()
-                if status is not None:
+                if status is not no:
                     task.status = status
-                if progress is not None:
+                if progress is not no:
                     task.progress = progress
-                if message is not None:
+                if message is not no:
                     task.message = message
-                if result is not None:
+                if result is not no:
                     task.result = result
-                if error is not None:
+                if error is not no:
                     task.error = error
-                if progress_detail is not None:
+                if progress_detail is not no:
                     task.progress_detail = progress_detail
     
     def complete_task(self, task_id: str, result: Dict):
-        """标记任务完成"""
+        """标记任务Complete"""
         self.update_task(
             task_id,
             status=TaskStatus.COMPLETED,
             progress=100,
-            message="任务完成",
+            message="任务Complete",
             result=result
         )
     
     def fail_task(self, task_id: str, error: str):
-        """标记任务失败"""
+        """标记任务Failed"""
         self.update_task(
             task_id,
             status=TaskStatus.FAILED,
-            message="任务失败",
+            message="任务Failed",
             error=error
         )
     
-    def list_tasks(self, task_type: Optional[str] = None) -> list:
+    def list_tasks(self, task_type: Optional[str] = no) -> list:
         """列出任务"""
         with self._task_lock:
             tasks = list(self._tasks.values())
